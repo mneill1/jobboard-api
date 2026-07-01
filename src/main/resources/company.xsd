@@ -1,0 +1,25 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:tns="http://jobboard.com/hr"
+           targetNamespace="http://jobboard.com/hr"
+           elementFormDefault="qualified">
+
+    <xs:element name="getCompanyInfoRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="companyId" type="xs:long"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="getCompanyInfoResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="id" type="xs:long"></xs:element>
+                <xs:element name="name" type="xs:string"></xs:element>
+                <xs:element name="industry" type="xs:string"></xs:element>
+                <xs:element name="size" type="xs:string"></xs:element>
+                <xs:element name="website" type="xs:string"></xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>        

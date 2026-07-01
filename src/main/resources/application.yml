@@ -1,0 +1,33 @@
+spring:
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/jobboard
+    redis:
+      host: localhost
+      port: 6379
+    elasticsearch:
+      repositories:
+        enabled: true
+  datasource:
+    url: jdbc:mysql://localhost:3306/jobboard
+    username: root
+    password: root
+    hikari:
+      connection-timeout: 60000
+      initialization-fail-timeout: 60000
+      retry-attempts: 5
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
