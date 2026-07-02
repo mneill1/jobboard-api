@@ -10,6 +10,8 @@ import com.jobboard.api.exception.ResourceNotFoundException;
 import com.jobboard.api.repository.JobRepository;
 import com.jobboard.api.repository.JobSearchRepository;
 
+import lombok.extern.slf4j.Slf4j;
+
 //import jakarta.persistence.criteria.JoinType;
 
 import com.jobboard.api.repository.CompanyRepository;
@@ -23,6 +25,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Service //@RequiredArgsConstructor
 public class JobService {
     private final JobRepository jobRepo;
@@ -50,10 +53,16 @@ public class JobService {
 
     @Cacheable(value = "jobs", key = "#id")
     public JobResponse getById(Long id) {
+        log.info("Fetching job id={}", id);
         Job job = jobRepo.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Job not found"));
+            .orElseThrow(() -> {
+                log.warn("Job not found id={}", id);
+                return new ResourceNotFoundException("Job not found");
+            });
+        log.debug("Cache miss for job id={} — loaded from MySQL", id);
         return toResponse(job);
     }
+
     @CacheEvict(value = "jobs", key = "#id")
     public void delete(Long id) {
         if (!jobRepo.existsById(id)) {
@@ -67,13 +76,17 @@ public class JobService {
 
     @CacheEvict(value = "jobs", key = "#id")
     public JobResponse updateStatus(Long id, JobStatus newStatus) {
+        log.info("Updating job id={} status to {}", id, newStatus);
         Job job = jobRepo.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Job not found"));
+        JobStatus oldStatus = job.getStatus();
         job.setStatus(newStatus);
         job.setUpdatedAt(LocalDateTime.now());
         Job saved = jobRepo.save(job);
+        log.info("Job id={} status changed {} -> {}", id, oldStatus, newStatus);
         
         if (newStatus == JobStatus.ACTIVE){
+            log.info("Indexing job id={} into Elasticsearch", id);
             JobDocument doc = new JobDocument();
             doc.setId(String.valueOf(saved.getId()));
             doc.setTitle(saved.getTitle());

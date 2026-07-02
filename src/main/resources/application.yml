@@ -15,10 +15,6 @@ spring:
     url: jdbc:mysql://localhost:3306/jobboard
     username: root
     password: root
-    hikari:
-      connection-timeout: 60000
-      initialization-fail-timeout: 60000
-      retry-attempts: 5
   jpa:
     open-in-view: false
     hibernate:
@@ -31,3 +27,15 @@ springdoc:
   swagger-ui:
     enabled: true
     path: /swagger-ui.html
+
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,loggers
+  metrics:
+    tags:
+      applicatios: jobboard.api

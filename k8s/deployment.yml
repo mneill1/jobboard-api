@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jobboard-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jobboard-api
+  template:
+    metadata:
+      labels:
+        app: jobboard-api
+    spec:
+      containers:
+        - name: jobboard-api
+          image: ghcr.io/mneill1/jobboard-api:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: jobboard-config
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 15
