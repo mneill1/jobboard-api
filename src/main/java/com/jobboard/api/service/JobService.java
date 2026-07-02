@@ -62,6 +62,22 @@ public class JobService {
         log.debug("Cache miss for job id={} — loaded from MySQL", id);
         return toResponse(job);
     }
+    @Cacheable(value = "jobs", key = "#id")
+    public List<JobResponse> list(JobStatus status, String location){
+        if(status != null){
+            return jobRepo.findByStatus(status).stream()
+                .map(this::toResponse)
+                .toList();
+        }
+        if(location != null){
+            return jobRepo.findByLocationContainingIgnoreCase(location).stream()
+                .map(this::toResponse)
+                .toList();
+        }
+        return jobRepo.findAll().stream()
+            .map(this::toResponse)
+            .toList();
+    }
 
     @CacheEvict(value = "jobs", key = "#id")
     public void delete(Long id) {

@@ -15,11 +15,18 @@ spring:
     url: jdbc:mysql://localhost:3306/jobboard
     username: root
     password: root
+    hikari:
+      connection-timeout: 30000
+      initialization-fail-timeout: 120000
   jpa:
     open-in-view: false
     hibernate:
       ddl-auto: update
     show-sql: true
+  cache:
+    cache-names: jobs
+    redis:
+      enable-statistics: true
 
 springdoc:
   api-docs:
@@ -38,4 +45,4 @@ management:
         include: health,info,metrics,loggers
   metrics:
     tags:
-      applicatios: jobboard.api
+      application: jobboard.api

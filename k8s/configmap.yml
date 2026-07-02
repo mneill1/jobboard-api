@@ -3,9 +3,9 @@ kind: ConfigMap
 metadata:
   name: jobboard-config
 data:
-  SPRING_DATASOURCE_URL: jdbc:mysql://192.168.49.1:3306/jobboard
+  SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/jobboard
   SPRING_DATASOURCE_USERNAME: root
   SPRING_DATASOURCE_PASSWORD: root
-  SPRING_DATA_MONGODB_URI: mongodb://192.168.49.1:27017/jobboard
-  SPRING_DATA_REDIS_HOST: 192.168.49.1
-  SPRING_ELASTICSEARCH_URIS: http://192.168.49.1:9200
+  SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/jobboard
+  SPRING_DATA_REDIS_HOST: redis
+  SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200

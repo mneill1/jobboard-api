@@ -25,6 +25,15 @@ public class JobController {
         return ResponseEntity.status(201).body(jobService.createJob(req));
     }
 
+    @GetMapping
+    public ResponseEntity<List<JobResponse>> list(
+        @RequestParam(required = false) JobStatus status,
+        @RequestParam(required = false) String location
+    ) {
+            return ResponseEntity.ok(jobService.list(status, location));
+    }
+    
+
     @GetMapping("/{id}")
     public ResponseEntity<JobResponse> getById(@PathVariable Long id) {
         return ResponseEntity.ok(jobService.getById(id));
