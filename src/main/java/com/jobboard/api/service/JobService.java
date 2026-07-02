@@ -62,7 +62,7 @@ public class JobService {
         log.debug("Cache miss for job id={} — loaded from MySQL", id);
         return toResponse(job);
     }
-    @Cacheable(value = "jobs", key = "#id")
+
     public List<JobResponse> list(JobStatus status, String location){
         if(status != null){
             return jobRepo.findByStatus(status).stream()
