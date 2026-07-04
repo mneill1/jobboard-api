@@ -1,0 +1,50 @@
+<div style="max-width: 700px; margin: 40px auto; font-family: sans-serif; padding: 0 16px;">
+
+  <h1 style="font-size: 24px; font-weight: 500; margin-bottom: 24px;">Job Board</h1>
+
+  <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+    <input
+      [(ngModel)]="query"
+      (keydown)="onKeydown($event)"
+      placeholder="Search jobs..."
+      style="flex: 1; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;"
+    />
+    <button
+      (click)="search()"
+      style="padding: 8px 16px; background: #1a1a1a; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;">
+      Search
+    </button>
+    <button
+      (click)="loadAll()"
+      style="padding: 8px 16px; background: white; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; font-size: 14px;">
+      All jobs
+    </button>
+  </div>
+
+  <div *ngIf="loading" style="color: #888; font-size: 14px;">
+    Loading...
+  </div>
+
+  <div *ngIf="searched && !loading && jobs.length === 0" style="color: #888; font-size: 14px;">
+    No jobs found.
+  </div>
+
+  <div *ngFor="let job of jobs"
+    style="border: 1px solid #eee; border-radius: 8px; padding: 16px; margin-bottom: 12px;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+      <div>
+        <div style="font-size: 16px; font-weight: 500;">{{ job.title }}</div>
+        <div style="font-size: 13px; color: #666; margin-top: 2px;">
+          {{ job.companyName }} · {{ job.location }}
+        </div>
+      </div>
+      <span style="font-size: 11px; padding: 2px 8px; border-radius: 20px; background: #f0f0f0; color: #555;">
+        {{ job.status }}
+      </span>
+    </div>
+    <div style="font-size: 13px; color: #888; margin-top: 8px;">
+      ${{ job.salaryMin | number }} – ${{ job.salaryMax | number }}
+    </div>
+  </div>
+
+</div>

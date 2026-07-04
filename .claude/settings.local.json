@@ -49,7 +49,8 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8080/actuator)",
       "Bash(curl -s http://localhost:8080/actuator)",
       "Bash(curl -s http://localhost:8080/actuator/health)",
-      "Bash(curl -s -o /dev/null -w \"code=%{http_code} time=%{time_total}\\\\n\" http://localhost:8080/actuator/health)"
+      "Bash(curl -s -o /dev/null -w \"code=%{http_code} time=%{time_total}\\\\n\" http://localhost:8080/actuator/health)",
+      "Bash(grep -nB2 -A30 \"ServiceDecorator\" /Users/malcolmneill/Desktop/InterviewTraining/api/frontend/node_modules/@angular/core/types/core.d.ts)"
     ],
     "additionalDirectories": [
       "/private/tmp"
