@@ -18,3 +18,10 @@ Available at `http://localhost:8080/swagger-ui.html` after startup.
 
 ## Actuator Endpoints
 Exposed: `health`, `info`, `metrics`, `loggers` — available at `/actuator/*`.
+
+## Frontend Structure
+- Single-page Angular 22 app in `frontend/` — only feature is a job search/list UI (`App` component)
+- Only one service: `JobService` in `frontend/src/app/service/job.ts` — covers search, getAll, list by status/location
+- **No routing, no lazy loading, no standalone components** — everything in one `AppModule`
+- Test runner is **Vitest** (not Karma) — `job.spec.ts` is broken (imports wrong class name `Job` instead of `JobService`)
+- `app.spec.ts` has a stale assertion (`'Hello, frontend'`) that doesn't match the actual template heading (`'Job Board'`)

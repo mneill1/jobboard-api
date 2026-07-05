@@ -35,6 +35,10 @@ springdoc:
     enabled: true
     path: /swagger-ui.html
 
+app:
+  jwt:
+    secret: "jobboard-secret-key-must-be-at-least-256-bits-long-for-hs256-algo"
+
 management:
   endpoint:
     health:

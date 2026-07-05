@@ -13,6 +13,21 @@ export interface JobResponse {
   companyName: string;
 }
 
+export interface CompanyResponse {
+  id: number;
+  name: string;
+}
+
+export interface JobRequest {
+  title: string;
+  description: string;
+  location: string;
+  salaryMin: number | null;
+  salaryMax: number | null;
+  companyId: number | null;
+  status: string;
+}
+
 @Service()
 export class JobService {
 
@@ -35,6 +50,14 @@ export class JobService {
         if (status) params = params.set('status', status);
         if (location) params = params.set('location', location);
         return this.http.get<JobResponse[]>(`${this.apiUrl}/jobs`, { params });
+    }
+
+    getCompanies(): Observable<CompanyResponse[]> {
+        return this.http.get<CompanyResponse[]>(`${this.apiUrl}/companies`);
+    }
+
+    createJob(req: JobRequest): Observable<JobResponse> {
+        return this.http.post<JobResponse>(`${this.apiUrl}/jobs`, req);
     }
 
 }

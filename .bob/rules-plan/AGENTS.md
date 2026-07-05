@@ -14,3 +14,10 @@ The JPA + Elasticsearch repository combination creates a Spring initialization c
 
 ## SOAP + REST Coexistence
 `MessageDispatcherServlet` is registered on `/ws/*` separately from the standard `DispatcherServlet`. SOAP and REST share the same port. Adding Spring Security must account for both servlet paths.
+
+## Frontend Architecture Constraints
+- The Angular frontend (`frontend/`) is a **thin search UI** only — no auth, no job CRUD, no application submission
+- API base URL is hardcoded to `http://localhost:8080/api` — adding environment-specific configs requires introducing Angular environment files
+- CORS is whitelisted for `http://localhost:4200` only in `CorsConfig.java` — any deployment or proxy change requires updating both the API and frontend
+- The frontend has no HTTP interceptors, error handling service, or retry logic — all errors are `console.error`'d only
+- Module-based (not standalone) architecture is enforced by `angular.json` schematics — migrating to standalone requires changing the schematics config and refactoring `AppModule`

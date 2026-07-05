@@ -1,0 +1,155 @@
+<div style="max-width: 700px; margin: 40px auto; font-family: sans-serif; padding: 0 16px;">
+
+  <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+    <input
+      [(ngModel)]="query"
+      (keydown)="onKeydown($event)"
+      name="query"
+      placeholder="Search jobs..."
+      style="flex: 1; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;"
+    />
+    <button
+      (click)="search()"
+      style="padding: 8px 16px; background: #1a1a1a; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;">
+      Search
+    </button>
+    <button
+      (click)="loadAll()"
+      style="padding: 8px 16px; background: white; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; font-size: 14px;">
+      All jobs
+    </button>
+    <button
+      *ngIf="authService.getRole() === 'COMPANY'"
+      (click)="toggleForm()"
+      style="padding: 8px 16px; background: #3b82d4; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;">
+      Post a Job
+    </button>
+  </div>
+
+  <div *ngIf="successMessage" style="color: #276749; font-size: 14px; margin-bottom: 16px; padding: 10px 14px; border: 1px solid #b7e4c7; border-radius: 6px; background: #f0fff4;">
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="showForm" style="background: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+    <h2 style="font-size: 18px; font-weight: 500; margin: 0 0 16px;">Post a Job</h2>
+
+    <div *ngIf="formError" style="color: red; font-size: 14px; margin-bottom: 12px; padding: 8px 12px; border: 1px solid #f5c6cb; border-radius: 6px; background: #fff5f5;">
+      {{ formError }}
+    </div>
+
+    <div style="margin-bottom: 12px;">
+      <label style="display: block; font-size: 14px; margin-bottom: 4px; color: #1a1a1a;">Title</label>
+      <input
+        [(ngModel)]="newJob.title"
+        name="title"
+        style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box;"
+      />
+    </div>
+
+    <div style="margin-bottom: 12px;">
+      <label style="display: block; font-size: 14px; margin-bottom: 4px; color: #1a1a1a;">Description</label>
+      <textarea
+        [(ngModel)]="newJob.description"
+        name="description"
+        rows="4"
+        style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box; resize: vertical;"
+      ></textarea>
+    </div>
+
+    <div style="margin-bottom: 12px;">
+      <label style="display: block; font-size: 14px; margin-bottom: 4px; color: #1a1a1a;">Location</label>
+      <input
+        [(ngModel)]="newJob.location"
+        name="location"
+        style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box;"
+      />
+    </div>
+
+    <div style="display: flex; gap: 12px; margin-bottom: 12px;">
+      <div style="flex: 1;">
+        <label style="display: block; font-size: 14px; margin-bottom: 4px; color: #1a1a1a;">Salary Min</label>
+        <input
+          type="number"
+          [(ngModel)]="newJob.salaryMin"
+          name="salaryMin"
+          style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box;"
+        />
+      </div>
+      <div style="flex: 1;">
+        <label style="display: block; font-size: 14px; margin-bottom: 4px; color: #1a1a1a;">Salary Max</label>
+        <input
+          type="number"
+          [(ngModel)]="newJob.salaryMax"
+          name="salaryMax"
+          style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box;"
+        />
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 12px; margin-bottom: 12px;">
+      <div style="flex: 1;">
+        <label style="display: block; font-size: 14px; margin-bottom: 4px; color: #1a1a1a;">Company</label>
+        <select
+          [(ngModel)]="newJob.companyId"
+          name="companyId"
+          style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box; background: white;"
+        >
+          <option [value]="null" disabled>Select a company</option>
+          <option *ngFor="let c of companies" [value]="c.id">{{ c.name }}</option>
+        </select>
+      </div>
+      <div style="flex: 1;">
+        <label style="display: block; font-size: 14px; margin-bottom: 4px; color: #1a1a1a;">Status</label>
+        <select
+          [(ngModel)]="newJob.status"
+          name="status"
+          style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box; background: white;"
+        >
+          <option value="DRAFT">DRAFT</option>
+          <option value="ACTIVE">ACTIVE</option>
+          <option value="CLOSED">CLOSED</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 8px;">
+      <button
+        (click)="submitJob()"
+        style="padding: 8px 20px; background: #1a1a1a; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;">
+        Post Job
+      </button>
+      <button
+        (click)="toggleForm()"
+        style="padding: 8px 20px; background: white; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; font-size: 14px;">
+        Cancel
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" style="color: #888; font-size: 14px;">
+    Loading...
+  </div>
+
+  <div *ngIf="searched && !loading && jobs.length === 0" style="color: #888; font-size: 14px;">
+    No jobs found.
+  </div>
+
+  <div *ngFor="let job of jobs"
+    style="border: 1px solid #eee; border-radius: 8px; padding: 16px; margin-bottom: 12px;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+      <div>
+        <div style="font-size: 16px; font-weight: 500;">{{ job.title }}</div>
+        <div style="font-size: 13px; color: #666; margin-top: 2px;">
+          {{ job.companyName }} · {{ job.location }}
+        </div>
+      </div>
+      <span style="font-size: 11px; padding: 2px 8px; border-radius: 20px; background: #f0f0f0; color: #555;">
+        {{ job.status }}
+      </span>
+    </div>
+    <div style="font-size: 13px; color: #888; margin-top: 8px;">
+      ${{ job.salaryMin | number }} – ${{ job.salaryMax | number }}
+    </div>
+  </div>
+
+</div>

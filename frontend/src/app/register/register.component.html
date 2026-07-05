@@ -1,0 +1,50 @@
+<div style="max-width: 400px; margin: 80px auto; font-family: sans-serif; padding: 0 16px;">
+  <h1 style="font-size: 22px; font-weight: 500; margin-bottom: 24px;">Create Account</h1>
+
+  <div *ngIf="error" style="color: #9b1c1c; font-size: 14px; margin-bottom: 16px; padding: 10px 14px; border: 1px solid #f5c6cb; border-radius: 6px; background: #fff5f5;">
+    {{ error }}
+  </div>
+
+  <div style="margin-bottom: 14px;">
+    <label style="display: block; font-size: 14px; margin-bottom: 4px; color: #1a1a1a;">Email</label>
+    <input
+      type="email"
+      [(ngModel)]="email"
+      name="email"
+      placeholder="you@example.com"
+      style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box;"
+    />
+  </div>
+
+  <div style="margin-bottom: 14px;">
+    <label style="display: block; font-size: 14px; margin-bottom: 4px; color: #1a1a1a;">Password</label>
+    <input
+      type="password"
+      [(ngModel)]="password"
+      name="password"
+      style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box;"
+    />
+  </div>
+
+  <div style="margin-bottom: 20px;">
+    <label style="display: block; font-size: 14px; margin-bottom: 4px; color: #1a1a1a;">Role</label>
+    <select
+      [(ngModel)]="role"
+      name="role"
+      style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box; background: white;"
+    >
+      <option value="APPLICANT">Applicant</option>
+      <option value="COMPANY">Company</option>
+    </select>
+  </div>
+
+  <button
+    (click)="submit()"
+    style="width: 100%; padding: 10px; background: #1a1a1a; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;">
+    Register
+  </button>
+
+  <p style="margin-top: 16px; font-size: 13px; color: #57606a; text-align: center;">
+    Already have an account? <a routerLink="/login" style="color: #3b82d4; text-decoration: none;">Sign in</a>
+  </p>
+</div>

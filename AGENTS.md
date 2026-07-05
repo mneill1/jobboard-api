@@ -80,3 +80,25 @@ Every HTTP request receives a short UUID prefix (`requestId`, first 8 chars) inj
 - `application.yml` hardcodes `root/root` credentials — override via env vars in Docker Compose
 - Elasticsearch must have `xpack.security.enabled=false` (set in `docker-compose.yml`)
 - `ddl-auto: update` — schema is managed by Hibernate, not migration scripts
+
+## Frontend (Angular)
+
+Location: `frontend/` — Angular 22, TypeScript 6. All commands **must be run from inside `frontend/`**.
+
+```bash
+cd frontend
+npm install          # first time only
+npm start            # ng serve → http://localhost:4200
+npm run build        # production build
+npm test             # ng test (Vitest, NOT Karma)
+```
+
+### Non-obvious frontend gotchas
+
+- **Test runner is Vitest**, not Karma/Jasmine — `tsconfig.spec.json` uses `vitest/globals`; `ng test` invokes `@angular/build:unit-test`
+- **Components are module-based** (not standalone), enforced via `angular.json` schematics — new components/directives/pipes must be declared in `AppModule`, never `standalone: true`
+- **`@Service()` is used instead of `@Injectable()`** in [`job.ts`](frontend/src/app/service/job.ts) — Angular 22 experimental alias; keep consistent
+- **`job.spec.ts` imports `Job` (not `JobService`)**  — this test currently fails; the correct export name is `JobService`
+- **API base URL hardcoded** to `http://localhost:8080/api` in [`job.ts`](frontend/src/app/service/job.ts) — no environment file abstraction
+- **CORS tied to port 4200** — if the Angular dev port changes, update [`CorsConfig.java`](src/main/java/com/jobboard/api/config/CorsConfig.java) to match
+- **Prettier config**: `printWidth: 100`, `singleQuote: true`, Angular HTML parser for `.html` files (see [`frontend/.prettierrc`](frontend/.prettierrc))
