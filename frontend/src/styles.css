@@ -1,1 +1,12 @@
-/* You can add global styles to this file, and also import other style files */
+/* Global resets and base styles */
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; }
+
+/* Smooth focus rings */
+:focus-visible { outline: 2px solid #6366f1; outline-offset: 2px; }
+
+/* Native form element normalisation */
+input, textarea, select, button {
+  font-family: inherit;
+  font-size: inherit;
+}

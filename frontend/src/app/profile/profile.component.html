@@ -1,0 +1,261 @@
+<div class="min-h-screen bg-surface">
+  <div class="mx-auto max-w-2xl px-4 py-10">
+
+    <!-- Page header -->
+    <div class="mb-8 flex items-center gap-3">
+      <span class="material-icons text-brand-600 text-3xl">manage_accounts</span>
+      <h1 class="text-2xl font-semibold text-slate-900">Profile</h1>
+    </div>
+
+    <div *ngIf="loading()" class="flex items-center justify-center gap-2 py-20 text-slate-400 text-sm">
+      <span class="material-icons animate-spin" style="font-size:20px;">refresh</span>
+      Loading…
+    </div>
+    <div *ngIf="error()" class="text-red-600 text-sm">{{ error() }}</div>
+
+    <ng-container *ngIf="!loading() && profile() as profile">
+
+      <!-- ── Account ─────────────────────────────────────────── -->
+      <section class="bg-card border border-slate-200 rounded-2xl mb-5 overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+          <h2 class="font-semibold text-slate-900 flex items-center gap-2">
+            <span class="material-icons text-brand-500" style="font-size:18px;">person</span>
+            Account
+          </h2>
+          <button (click)="toggleEditAccount()"
+                  class="text-sm text-slate-500 hover:text-slate-900 border border-slate-200 hover:border-slate-300
+                         px-3 py-1 rounded-lg transition-colors cursor-pointer bg-transparent">
+            {{ editingAccount ? 'Cancel' : 'Edit' }}
+          </button>
+        </div>
+
+        <div class="px-6 py-5">
+          <!-- View mode -->
+          <div *ngIf="!editingAccount" class="space-y-3">
+            <div>
+              <p class="text-xs font-medium text-slate-400 uppercase tracking-wide">Email</p>
+              <p class="text-sm text-slate-800 mt-0.5">{{ profile.email }}</p>
+            </div>
+            <div>
+              <p class="text-xs font-medium text-slate-400 uppercase tracking-wide">Role</p>
+              <span class="mt-0.5 inline-flex items-center text-xs font-semibold px-2.5 py-0.5 rounded-full
+                     {{ profile.role === 'COMPANY' ? 'bg-amber-100 text-amber-700' : 'bg-brand-100 text-brand-700' }}">
+                {{ profile.role }}
+              </span>
+            </div>
+            <div>
+              <p class="text-xs font-medium text-slate-400 uppercase tracking-wide">Member since</p>
+              <p class="text-sm text-slate-800 mt-0.5">{{ profile.createdAt.substring(0, 10) }}</p>
+            </div>
+          </div>
+
+          <!-- Edit mode -->
+          <div *ngIf="editingAccount" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1.5">New email</label>
+              <input [(ngModel)]="editEmail" type="email"
+                     class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm
+                            focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1.5">New password</label>
+              <input [(ngModel)]="editPassword" type="password" placeholder="Leave blank to keep current"
+                     class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm
+                            placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition" />
+            </div>
+            <button (click)="saveAccount()"
+                    class="px-5 py-2 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-lg
+                           transition-colors text-sm cursor-pointer border-0">
+              Save changes
+            </button>
+          </div>
+
+          <div *ngIf="saveSuccess() && !editingCompany"
+               class="mt-4 flex items-center gap-1.5 text-sm text-emerald-700">
+            <span class="material-icons text-base">check_circle</span>{{ saveSuccess() }}
+          </div>
+          <div *ngIf="saveError() && !editingCompany"
+               class="mt-4 flex items-center gap-1.5 text-sm text-red-600">
+            <span class="material-icons text-base">error</span>{{ saveError() }}
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Company ─────────────────────────────────────────── -->
+      <section *ngIf="profile.role === 'COMPANY' && profile.company"
+               class="bg-card border border-slate-200 rounded-2xl mb-5 overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+          <h2 class="font-semibold text-slate-900 flex items-center gap-2">
+            <span class="material-icons text-amber-500" style="font-size:18px;">business</span>
+            Company
+          </h2>
+          <button (click)="toggleEditCompany()"
+                  class="text-sm text-slate-500 hover:text-slate-900 border border-slate-200 hover:border-slate-300
+                         px-3 py-1 rounded-lg transition-colors cursor-pointer bg-transparent">
+            {{ editingCompany ? 'Cancel' : 'Edit' }}
+          </button>
+        </div>
+
+        <div class="px-6 py-5">
+          <!-- View mode -->
+          <div *ngIf="!editingCompany">
+            <!-- Logo + upload -->
+            <div class="flex items-center gap-4 mb-5">
+              <div class="w-16 h-16 rounded-xl overflow-hidden bg-slate-100 border border-slate-200
+                          flex items-center justify-center flex-shrink-0">
+                <img *ngIf="profile.company!.logoUrl"
+                     [src]="'http://localhost:8080' + profile.company!.logoUrl"
+                     alt="Company logo"
+                     class="w-full h-full object-contain" />
+                <span *ngIf="!profile.company!.logoUrl"
+                      class="material-icons text-slate-300 text-4xl">business</span>
+              </div>
+              <div>
+                <p class="text-sm font-medium text-slate-700 mb-1">Company logo</p>
+                <label class="flex items-center gap-1.5 px-3 py-1.5 text-sm border border-slate-300
+                              rounded-lg text-slate-600 hover:text-slate-900 hover:border-slate-400
+                              transition-colors cursor-pointer bg-white">
+                  <span class="material-icons text-base">upload</span>
+                  {{ logoUploading() ? 'Uploading…' : 'Upload logo' }}
+                  <input type="file" accept="image/*" (change)="onLogoSelected($event)" class="sr-only" />
+                </label>
+                <p *ngIf="logoError()" class="text-xs text-red-600 mt-1">{{ logoError() }}</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <p class="text-xs font-medium text-slate-400 uppercase tracking-wide">Name</p>
+                <p class="text-sm text-slate-800 mt-0.5">{{ profile.company!.name }}</p>
+              </div>
+              <div>
+                <p class="text-xs font-medium text-slate-400 uppercase tracking-wide">Industry</p>
+                <p class="text-sm text-slate-800 mt-0.5">{{ profile.company!.industry || '—' }}</p>
+              </div>
+              <div>
+                <p class="text-xs font-medium text-slate-400 uppercase tracking-wide">Size</p>
+                <p class="text-sm text-slate-800 mt-0.5">{{ profile.company!.size || '—' }}</p>
+              </div>
+              <div>
+                <p class="text-xs font-medium text-slate-400 uppercase tracking-wide">Website</p>
+                <p class="text-sm text-slate-800 mt-0.5">{{ profile.company!.website || '—' }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Edit mode -->
+          <div *ngIf="editingCompany" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1.5">Name</label>
+              <input [(ngModel)]="editCompanyName" type="text"
+                     class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm
+                            focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition" />
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1.5">Industry</label>
+                <input [(ngModel)]="editCompanyIndustry" type="text"
+                       class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm
+                              focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1.5">Size</label>
+                <input [(ngModel)]="editCompanySize" type="text"
+                       class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm
+                              focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition" />
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1.5">Website</label>
+              <input [(ngModel)]="editCompanyWebsite" type="text"
+                     class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm
+                            focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition" />
+            </div>
+            <button (click)="saveCompany()"
+                    class="px-5 py-2 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-lg
+                           transition-colors text-sm cursor-pointer border-0">
+              Save changes
+            </button>
+          </div>
+
+          <div *ngIf="saveSuccess() && editingCompany === false && editingAccount === false"
+               class="mt-4 flex items-center gap-1.5 text-sm text-emerald-700">
+            <span class="material-icons text-base">check_circle</span>{{ saveSuccess() }}
+          </div>
+          <div *ngIf="saveError() && editingCompany === false"
+               class="mt-4 flex items-center gap-1.5 text-sm text-red-600">
+            <span class="material-icons text-base">error</span>{{ saveError() }}
+          </div>
+        </div>
+      </section>
+
+      <!-- ── My Jobs ─────────────────────────────────────────── -->
+      <section *ngIf="profile.role === 'COMPANY'"
+               class="bg-card border border-slate-200 rounded-2xl mb-5 overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-100">
+          <h2 class="font-semibold text-slate-900 flex items-center gap-2">
+            <span class="material-icons text-brand-500" style="font-size:18px;">work</span>
+            My Jobs
+          </h2>
+        </div>
+        <div class="px-6 py-4">
+          <p *ngIf="jobs().length === 0" class="text-sm text-slate-400 text-center py-6">No jobs posted yet.</p>
+
+          <div class="space-y-0 divide-y divide-slate-100">
+            <div *ngFor="let job of jobs()"
+                 class="flex items-center justify-between gap-4 py-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="flex-shrink-0 w-8 h-8 rounded-lg overflow-hidden bg-slate-100 border border-slate-200
+                            flex items-center justify-center">
+                  <img *ngIf="profile?.company?.logoUrl"
+                       [src]="'http://localhost:8080' + profile!.company!.logoUrl"
+                       alt="logo"
+                       class="w-full h-full object-contain" />
+                  <span *ngIf="!profile?.company?.logoUrl"
+                        class="material-icons text-slate-300" style="font-size:16px;">business</span>
+                </div>
+                <span class="text-sm font-medium text-slate-800 truncate">{{ job.title }}</span>
+              </div>
+              <span class="flex-shrink-0 text-xs font-semibold px-2.5 py-0.5 rounded-full
+                     {{ job.status === 'ACTIVE'  ? 'bg-emerald-100 text-emerald-700' :
+                        job.status === 'CLOSED'  ? 'bg-red-100 text-red-600' :
+                                                    'bg-amber-100 text-amber-700' }}">
+                {{ job.status }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── My Applications ─────────────────────────────────── -->
+      <section *ngIf="profile.role === 'APPLICANT'"
+               class="bg-card border border-slate-200 rounded-2xl mb-5 overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-100">
+          <h2 class="font-semibold text-slate-900 flex items-center gap-2">
+            <span class="material-icons text-brand-500" style="font-size:18px;">assignment</span>
+            My Applications
+          </h2>
+        </div>
+        <div class="px-6 py-4">
+          <p *ngIf="applications().length === 0" class="text-sm text-slate-400 text-center py-6">No applications yet.</p>
+
+          <div class="space-y-0 divide-y divide-slate-100">
+            <div *ngFor="let app of applications()"
+                 class="flex items-center justify-between gap-4 py-3">
+              <div>
+                <p class="text-sm font-medium text-slate-800">Job #{{ app.jobId }}</p>
+                <p class="text-xs text-slate-400 mt-0.5">
+                  Applied {{ app.appliedAt ? app.appliedAt.substring(0, 10) : '—' }}
+                </p>
+              </div>
+              <span class="flex-shrink-0 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600">
+                {{ app.status }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </ng-container>
+  </div>
+</div>

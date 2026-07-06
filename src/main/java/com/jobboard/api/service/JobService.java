@@ -1,5 +1,6 @@
 package com.jobboard.api.service;
 
+import com.jobboard.api.dto.JobFilterRequest;
 import com.jobboard.api.dto.JobRequest;
 import com.jobboard.api.dto.JobResponse;
 import com.jobboard.api.entity.JobStatus;
@@ -9,6 +10,8 @@ import com.jobboard.api.entity.JobDocument;
 import com.jobboard.api.exception.ResourceNotFoundException;
 import com.jobboard.api.repository.JobRepository;
 import com.jobboard.api.repository.JobSearchRepository;
+import com.jobboard.api.repository.JobSpecifications;
+import org.springframework.data.jpa.domain.Specification;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -63,18 +66,9 @@ public class JobService {
         return toResponse(job);
     }
 
-    public List<JobResponse> list(JobStatus status, String location){
-        if(status != null){
-            return jobRepo.findByStatus(status).stream()
-                .map(this::toResponse)
-                .toList();
-        }
-        if(location != null){
-            return jobRepo.findByLocationContainingIgnoreCase(location).stream()
-                .map(this::toResponse)
-                .toList();
-        }
-        return jobRepo.findAll().stream()
+    public List<JobResponse> list(JobFilterRequest filter){
+        Specification<Job> spec = JobSpecifications.fromFilter(filter);
+        return jobRepo.findAll(spec).stream()
             .map(this::toResponse)
             .toList();
     }
@@ -137,6 +131,9 @@ public class JobService {
         
         res.setCompanyId(job.getCompany().getId());
         res.setCompanyName(job.getCompany().getName());
+        if (job.getCompany().getLogoPath() != null) {
+            res.setCompanyLogoUrl("/api/companies/" + job.getCompany().getId() + "/logo");
+        }
         return res;
      }
 }

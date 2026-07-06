@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../service/auth';
 
@@ -10,15 +10,15 @@ import { AuthService } from '../service/auth';
 export class LoginComponent {
   email = '';
   password = '';
-  error: string | null = null;
+  error = signal<string | null>(null);
 
   constructor(private authService: AuthService, private router: Router) {}
 
   submit(): void {
-    this.error = null;
+    this.error.set(null);
     this.authService.login(this.email, this.password).subscribe({
       next: () => this.router.navigate(['/']),
-      error: (err) => this.error = err?.error?.message ?? 'Login failed'
+      error: (err) => this.error.set(err?.error?.message ?? 'Login failed')
     });
   }
 }

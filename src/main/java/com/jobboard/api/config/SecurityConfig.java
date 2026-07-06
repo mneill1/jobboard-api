@@ -60,10 +60,13 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.DELETE, "/api/jobs/**").hasRole("COMPANY")
                 .requestMatchers(HttpMethod.GET, "/api/jobs/*/applications").hasRole("COMPANY")
                 .requestMatchers(HttpMethod.POST, "/api/companies").hasRole("COMPANY")
+                .requestMatchers(HttpMethod.POST, "/api/companies/*/logo").hasRole("COMPANY")
                 .requestMatchers(HttpMethod.PUT, "/api/companies/**").hasRole("COMPANY")
                 .requestMatchers(HttpMethod.DELETE, "/api/companies/**").hasRole("COMPANY")
                 // Apply — any authenticated user
                 .requestMatchers(HttpMethod.POST, "/api/jobs/*/apply").authenticated()
+                // User profile endpoints
+                .requestMatchers("/api/users/**").authenticated()
                 // Everything else requires authentication
                 .anyRequest().authenticated()
             )

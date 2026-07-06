@@ -10,9 +10,16 @@ import com.jobboard.api.soap.HrSoapClient;
 import com.jobboard.hr.GetCompanyInfoResponse;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -58,6 +65,30 @@ public class CompanyService {
         companyRepo.deleteById(id);
     }
 
+    @Value("${app.upload.dir:uploads}")
+    private String uploadDir;
+
+    public CompanyResponse uploadLogo(Long id, MultipartFile file) {
+        Company company = companyRepo.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Company not found"));
+        try {
+            Path dir = Paths.get(uploadDir, "logos");
+            Files.createDirectories(dir);
+            String ext = "";
+            String orig = file.getOriginalFilename();
+            if (orig != null && orig.contains(".")) {
+                ext = orig.substring(orig.lastIndexOf('.'));
+            }
+            String filename = "company-" + id + "-" + UUID.randomUUID() + ext;
+            Files.copy(file.getInputStream(), dir.resolve(filename),
+                java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            company.setLogoPath(filename);
+            return toResponse(companyRepo.save(company));
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to store logo", e);
+        }
+    }
+
     private CompanyResponse toResponse(Company company) {
         CompanyResponse res = new CompanyResponse();
         res.setId(company.getId());
@@ -65,6 +96,9 @@ public class CompanyService {
         res.setIndustry(company.getIndustry());
         res.setSize(company.getSize());
         res.setWebsite(company.getWebsite());
+        if (company.getLogoPath() != null) {
+            res.setLogoUrl("/api/companies/" + company.getId() + "/logo");
+        }
         res.setCreatedAt(company.getCreatedAt());
         return res;
     }

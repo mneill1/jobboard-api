@@ -1,20 +1,45 @@
-<nav style="background: #1a1a1a; color: white; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 52px; font-family: sans-serif;">
-  <a routerLink="/" style="font-size: 16px; font-weight: 500; color: white; text-decoration: none;">Job Board</a>
+<!-- Sticky top navbar -->
+<header class="sticky top-0 z-50 bg-slate-900 shadow-lg">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6 flex items-center justify-between h-14">
 
-  <div style="display: flex; align-items: center; gap: 12px; font-size: 14px;">
-    <ng-container *ngIf="!authService.isLoggedIn()">
-      <a routerLink="/login" style="color: #d1d5db; text-decoration: none;">Login</a>
-      <a routerLink="/register" style="padding: 6px 14px; background: #3b82d4; color: white; border-radius: 6px; text-decoration: none;">Register</a>
-    </ng-container>
-    <ng-container *ngIf="authService.isLoggedIn()">
-      <span style="color: #d1d5db;">{{ authService.getRole() }}</span>
-      <button
-        (click)="logout()"
-        style="padding: 6px 14px; background: transparent; color: #d1d5db; border: 1px solid #4b5563; border-radius: 6px; cursor: pointer; font-size: 14px;">
-        Logout
-      </button>
-    </ng-container>
+    <!-- Brand -->
+    <a routerLink="/"
+       class="flex items-center gap-2 text-white font-semibold text-lg tracking-tight no-underline hover:text-brand-300 transition-colors">
+      <span class="material-icons text-brand-400" style="font-size:22px;">work</span>
+      JobBoard
+    </a>
+
+    <!-- Nav links -->
+    <nav class="flex items-center gap-3 text-sm">
+      <ng-container *ngIf="!authService.isLoggedIn()">
+        <a routerLink="/login"
+           class="text-slate-300 hover:text-white transition-colors no-underline px-2 py-1">
+          Sign in
+        </a>
+        <a routerLink="/register"
+           class="bg-brand-600 hover:bg-brand-500 text-white px-4 py-1.5 rounded-lg font-medium transition-colors no-underline">
+          Register
+        </a>
+      </ng-container>
+
+      <ng-container *ngIf="authService.isLoggedIn()">
+        <a routerLink="/profile"
+           class="text-slate-300 hover:text-white transition-colors no-underline flex items-center gap-1">
+          <span class="material-icons" style="font-size:18px;">person</span>
+          Profile
+        </a>
+        <span class="text-xs font-medium px-2 py-0.5 rounded-full
+              {{ authService.getRole() === 'COMPANY' ? 'bg-amber-500/20 text-amber-300' : 'bg-brand-500/20 text-brand-300' }}">
+          {{ authService.getRole() }}
+        </span>
+        <button (click)="logout()"
+          class="text-slate-400 hover:text-white border border-slate-700 hover:border-slate-500 px-3 py-1 rounded-lg transition-colors text-sm cursor-pointer bg-transparent">
+          Sign out
+        </button>
+      </ng-container>
+    </nav>
+
   </div>
-</nav>
+</header>
 
 <router-outlet></router-outlet>

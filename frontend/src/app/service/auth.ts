@@ -7,6 +7,10 @@ export interface AuthRequest {
   email: string;
   password: string;
   role?: string;
+  companyName?: string;
+  companyIndustry?: string;
+  companySize?: string;
+  companyWebsite?: string;
 }
 
 export interface AuthResponse {
@@ -29,8 +33,24 @@ export class AuthService {
     );
   }
 
-  register(email: string, password: string, role: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/register`, { email, password, role });
+  register(
+    email: string,
+    password: string,
+    role: string,
+    companyName?: string,
+    companyIndustry?: string,
+    companySize?: string,
+    companyWebsite?: string
+  ): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/register`, {
+      email,
+      password,
+      role,
+      companyName,
+      companyIndustry,
+      companySize,
+      companyWebsite,
+    });
   }
 
   logout(): void {

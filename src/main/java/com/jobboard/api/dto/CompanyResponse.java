@@ -10,5 +10,6 @@ public class CompanyResponse {
     private String industry;
     private String size;
     private String website;
+    private String logoUrl;
     private LocalDateTime createdAt;
 }

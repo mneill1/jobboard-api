@@ -20,4 +20,5 @@ public class JobResponse {
 
     private Long companyId;
     private String companyName;
+    private String companyLogoUrl;
 }

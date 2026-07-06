@@ -17,12 +17,13 @@ public class ApplicationService {
     private final ApplicationRepository applicationRepo;
     private final JobRepository jobRepo;
 
-    public ApplicationResponse apply(Long jobId, ApplicationRequest req){
+    public ApplicationResponse apply(Long jobId, ApplicationRequest req, Long userId){
         jobRepo.findById(jobId)
             .orElseThrow(() -> new ResourceNotFoundException("Job not Found"));
 
             Application app = new Application();
             app.setJobId(jobId);
+            app.setUserId(userId);
             app.setApplicantName(req.getApplicantName());
             app.setEmail(req.getEmail());
             app.setResumeText(req.getResumeText());

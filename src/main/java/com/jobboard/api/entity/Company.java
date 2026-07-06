@@ -16,5 +16,6 @@ public class Company {
     private String industry;
     private String size;
     private String website;
+    private String logoPath;
     private LocalDateTime createdAt = LocalDateTime.now();
 }

@@ -1,0 +1,23 @@
+<div class="lm-root" #rootEl>
+  <div class="lm-header">
+    <h2>Job listings by city</h2>
+    <p class="lm-subtitle">
+      {{ data.length }} cities &middot; {{ totalListings }} listings
+    </p>
+  </div>
+
+  <svg #svgEl class="lm-svg" [attr.viewBox]="'0 0 ' + width + ' ' + height"></svg>
+
+  <div class="lm-tooltip"></div>
+
+  <div class="lm-legend" *ngIf="legendCounts.length">
+    <div class="lm-legend-item" *ngFor="let c of legendCounts; let i = index">
+      <div
+        class="lm-legend-dot"
+        [style.width.px]="legendSizePx[i]"
+        [style.height.px]="legendSizePx[i]"
+      ></div>
+      <span>{{ c }} listing{{ c === 1 ? '' : 's' }}</span>
+    </div>
+  </div>
+</div>

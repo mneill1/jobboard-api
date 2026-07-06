@@ -14,6 +14,7 @@ public class Application {
     @Id
     private String id;
     private Long jobId;
+    private Long userId;
     private String applicantName;
     private String email;
     private String resumeText;

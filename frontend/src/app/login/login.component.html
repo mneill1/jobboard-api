@@ -1,38 +1,54 @@
-<div style="max-width: 400px; margin: 80px auto; font-family: sans-serif; padding: 0 16px;">
-  <h1 style="font-size: 22px; font-weight: 500; margin-bottom: 24px;">Sign In</h1>
+<div class="min-h-screen bg-surface flex items-center justify-center px-4">
+  <div class="w-full max-w-sm">
 
-  <div *ngIf="error" style="color: #9b1c1c; font-size: 14px; margin-bottom: 16px; padding: 10px 14px; border: 1px solid #f5c6cb; border-radius: 6px; background: #fff5f5;">
-    {{ error }}
+    <!-- Card -->
+    <div class="bg-card rounded-2xl shadow-xl border border-slate-200 px-8 py-10">
+
+      <!-- Header -->
+      <div class="mb-8 text-center">
+        <span class="material-icons text-brand-600 text-4xl mb-2 block">lock</span>
+        <h1 class="text-2xl font-semibold text-slate-900">Welcome back</h1>
+        <p class="text-sm text-slate-500 mt-1">Sign in to your account</p>
+      </div>
+
+      <!-- Error -->
+      <div *ngIf="error()"
+           class="mb-5 flex items-start gap-2 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+        <span class="material-icons text-base mt-0.5">error_outline</span>
+        <span>{{ error() }}</span>
+      </div>
+
+      <!-- Fields -->
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1.5">Email</label>
+          <input type="email" [(ngModel)]="email" name="email"
+                 placeholder="you@example.com"
+                 class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 placeholder-slate-400
+                        text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1.5">Password</label>
+          <input type="password" [(ngModel)]="password" name="password"
+                 placeholder="••••••••"
+                 class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 placeholder-slate-400
+                        text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition" />
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <button (click)="submit()"
+              class="mt-6 w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-2.5 rounded-lg
+                     transition-colors text-sm cursor-pointer border-0">
+        Sign in
+      </button>
+
+      <!-- Footer -->
+      <p class="mt-5 text-center text-sm text-slate-500">
+        No account yet?
+        <a routerLink="/register" class="text-brand-600 font-medium hover:underline">Create one</a>
+      </p>
+    </div>
+
   </div>
-
-  <div style="margin-bottom: 14px;">
-    <label style="display: block; font-size: 14px; margin-bottom: 4px; color: #1a1a1a;">Email</label>
-    <input
-      type="email"
-      [(ngModel)]="email"
-      name="email"
-      placeholder="you@example.com"
-      style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box;"
-    />
-  </div>
-
-  <div style="margin-bottom: 20px;">
-    <label style="display: block; font-size: 14px; margin-bottom: 4px; color: #1a1a1a;">Password</label>
-    <input
-      type="password"
-      [(ngModel)]="password"
-      name="password"
-      style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box;"
-    />
-  </div>
-
-  <button
-    (click)="submit()"
-    style="width: 100%; padding: 10px; background: #1a1a1a; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;">
-    Sign In
-  </button>
-
-  <p style="margin-top: 16px; font-size: 13px; color: #57606a; text-align: center;">
-    Don't have an account? <a routerLink="/register" style="color: #3b82d4; text-decoration: none;">Register</a>
-  </p>
 </div>

@@ -1,6 +1,9 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
-import { JobService, JobResponse, CompanyResponse, JobRequest } from '../service/job';
+import { Component, computed, signal } from '@angular/core';
+import { JobService, JobResponse, CompanyResponse, JobRequest, JobFilter } from '../service/job';
 import { AuthService } from '../service/auth';
+import { TOP_100_CITIES } from '../data/cities';
+import { CITY_COORDINATES } from '../data/city-coordinates';
+import type { CityListing } from '../listings-map/listings-map.component';
 
 @Component({
   selector: 'app-home',
@@ -8,87 +11,141 @@ import { AuthService } from '../service/auth';
   standalone: false
 })
 export class HomeComponent {
-  query = '';
-  jobs: JobResponse[] = [];
-  loading = false;
-  searched = false;
+  readonly cities = TOP_100_CITIES;
+
+  filters = signal<JobFilter>({});
+  draftQuery = '';
+  draftLocation = '';
+  draftMinSalary: number | null = null;
+  draftPostedWithinDays: number | null = null;
+
+  jobs = signal<JobResponse[]>([]);
+  loading = signal(false);
+  searched = signal(false);
+  showFilters = signal(false);
 
   showForm = false;
-  formError: string | null = null;
-  successMessage: string | null = null;
-  companies: CompanyResponse[] = [];
+  formError = signal<string | null>(null);
+  successMessage = signal<string | null>(null);
+  companies = signal<CompanyResponse[]>([]);
   newJob: JobRequest = { title: '', description: '', location: '', salaryMin: null, salaryMax: null, companyId: null, status: 'DRAFT' };
 
-  constructor(private jobService: JobService, private cdr: ChangeDetectorRef, public authService: AuthService) {}
+  allJobs = signal<JobResponse[]>([]);
 
-  search(): void {
-    if (!this.query.trim()) return;
-    this.loading = true;
-    this.searched = false;
-    this.jobService.search(this.query).subscribe({
-      next: (results) => {
-        this.jobs = results;
-        this.loading = false;
-        this.searched = true;
-      },
-      error: (err) => {
-        console.error('Search failed', err);
-        this.loading = false;
-        this.searched = true;
-      }
-    });
-    if (this.jobs.length === 0) {
-      this.loading = false;
-      this.searched = true;
-      console.log('empty');
+  activeFilterCount = computed(() => {
+    const f = this.filters();
+    let n = 0;
+    if (f.query) n++;
+    if (f.location) n++;
+    if (f.minSalary != null) n++;
+    if (f.postedWithinDays != null) n++;
+    return n;
+  });
+
+  mapData = computed<CityListing[]>(() => {
+    const counts = new Map<string, number>();
+    for (const j of this.allJobs()) {
+      if (!j.location) continue;
+      counts.set(j.location, (counts.get(j.location) ?? 0) + 1);
     }
+    const out: CityListing[] = [];
+    for (const [city, count] of counts) {
+      const coords = CITY_COORDINATES[city];
+      if (coords) out.push({ city, lat: coords.lat, lon: coords.lon, count });
+    }
+    return out;
+  });
+
+  constructor(private jobService: JobService, public authService: AuthService) {
+    this.refreshAllJobs();
+    this.applyFilters();
   }
 
-  loadAll(): void {
-    this.loading = true;
-    this.jobService.getAll().subscribe({
+  private refreshAllJobs(): void {
+    this.jobService.list().subscribe({
+      next: (results) => this.allJobs.set(results),
+      error: (err) => console.error('Failed to load jobs for map', err)
+    });
+  }
+
+  private buildFilter(): JobFilter {
+    const f: JobFilter = {};
+    if (this.draftQuery.trim()) f.query = this.draftQuery.trim();
+    if (this.draftLocation) f.location = this.draftLocation;
+    if (this.draftMinSalary != null && !isNaN(this.draftMinSalary)) f.minSalary = this.draftMinSalary;
+    if (this.draftPostedWithinDays != null) f.postedWithinDays = this.draftPostedWithinDays;
+    return f;
+  }
+
+  applyFilters(): void {
+    const filter = this.buildFilter();
+    this.filters.set(filter);
+    this.loading.set(true);
+    this.jobService.list(filter).subscribe({
       next: (results) => {
-        this.jobs = results;
-        this.loading = false;
-        this.searched = true;
+        this.jobs.set(results);
+        this.loading.set(false);
+        this.searched.set(true);
       },
       error: (err) => {
         console.error('Failed to load jobs', err);
-        this.loading = false;
-        this.searched = true;
+        this.loading.set(false);
+        this.searched.set(true);
       }
     });
   }
 
+  clearFilters(): void {
+    this.draftQuery = '';
+    this.draftLocation = '';
+    this.draftMinSalary = null;
+    this.draftPostedWithinDays = null;
+    this.applyFilters();
+  }
+
+  toggleFilters(): void {
+    this.showFilters.set(!this.showFilters());
+  }
+
   onKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Enter') this.search();
+    if (event.key === 'Enter') this.applyFilters();
+  }
+
+  onCitySelected(city: string): void {
+    this.draftLocation = city;
+    this.applyFilters();
+  }
+
+  clearCityFilter(): void {
+    this.draftLocation = '';
+    this.applyFilters();
   }
 
   toggleForm(): void {
     this.showForm = !this.showForm;
-    this.formError = null;
-    this.successMessage = null;
-    if (this.showForm && this.companies.length === 0) {
+    this.formError.set(null);
+    this.successMessage.set(null);
+    if (this.showForm && this.companies().length === 0) {
       this.jobService.getCompanies().subscribe({
-        next: (results) => { this.companies = results; },
+        next: (results) => { this.companies.set(results); },
         error: (err) => { console.error('Failed to load companies', err); }
       });
     }
   }
 
   submitJob(): void {
-    this.formError = null;
-    this.successMessage = null;
+    this.formError.set(null);
+    this.successMessage.set(null);
     this.jobService.createJob(this.newJob).subscribe({
       next: () => {
         this.newJob = { title: '', description: '', location: '', salaryMin: null, salaryMax: null, companyId: null, status: 'DRAFT' };
         this.showForm = false;
-        this.successMessage = 'Job created successfully!';
-        this.cdr.detectChanges();
-        this.loadAll();
+        this.successMessage.set('Job created successfully!');
+        this.refreshAllJobs();
+        this.applyFilters();
       },
       error: (err) => {
-        this.formError = err?.error?.message ?? err?.message ?? 'Failed to create job';
+        this.formError.set(err?.error?.message ?? err?.message ?? 'Failed to create job');
       }
     });
   }

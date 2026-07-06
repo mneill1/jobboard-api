@@ -4,7 +4,10 @@ import com.jobboard.api.config.JwtUtil;
 import com.jobboard.api.dto.AuthResponse;
 import com.jobboard.api.dto.LoginRequest;
 import com.jobboard.api.dto.RegisterRequest;
+import com.jobboard.api.entity.Company;
 import com.jobboard.api.entity.User;
+import com.jobboard.api.entity.UserRole;
+import com.jobboard.api.repository.CompanyRepository;
 import com.jobboard.api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -15,6 +18,7 @@ import org.springframework.stereotype.Service;
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final CompanyRepository companyRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
@@ -26,6 +30,15 @@ public class AuthService {
         user.setEmail(req.getEmail());
         user.setPassword(passwordEncoder.encode(req.getPassword()));
         user.setRole(req.getRole());
+        if (req.getRole() == UserRole.COMPANY) {
+            Company company = new Company();
+            company.setName(req.getCompanyName());
+            company.setIndustry(req.getCompanyIndustry());
+            company.setSize(req.getCompanySize());
+            company.setWebsite(req.getCompanyWebsite());
+            company = companyRepository.save(company);
+            user.setCompanyId(company.getId());
+        }
         userRepository.save(user);
         return toResponse(user);
     }

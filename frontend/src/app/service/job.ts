@@ -10,12 +10,22 @@ export interface JobResponse {
   salaryMin: number;
   salaryMax: number;
   status: string;
+  companyId: number;
   companyName: string;
+  companyLogoUrl: string | null;
 }
 
 export interface CompanyResponse {
   id: number;
   name: string;
+}
+
+export interface JobFilter {
+  query?: string;
+  location?: string;
+  minSalary?: number;
+  status?: string;
+  postedWithinDays?: number;
 }
 
 export interface JobRequest {
@@ -45,10 +55,13 @@ export class JobService {
         return this.http.get<JobResponse[]>(`${this.apiUrl}/jobs`);
     }
 
-    list(status?: string, location?: string): Observable<JobResponse[]> {
+    list(filter: JobFilter = {}): Observable<JobResponse[]> {
         let params = new HttpParams();
-        if (status) params = params.set('status', status);
-        if (location) params = params.set('location', location);
+        if (filter.query) params = params.set('query', filter.query);
+        if (filter.location) params = params.set('location', filter.location);
+        if (filter.minSalary != null) params = params.set('minSalary', String(filter.minSalary));
+        if (filter.status) params = params.set('status', filter.status);
+        if (filter.postedWithinDays != null) params = params.set('postedWithinDays', String(filter.postedWithinDays));
         return this.http.get<JobResponse[]>(`${this.apiUrl}/jobs`, { params });
     }
 
@@ -58,6 +71,12 @@ export class JobService {
 
     createJob(req: JobRequest): Observable<JobResponse> {
         return this.http.post<JobResponse>(`${this.apiUrl}/jobs`, req);
+    }
+
+    uploadLogo(companyId: number, file: File): Observable<any> {
+        const form = new FormData();
+        form.append('file', file);
+        return this.http.post(`${this.apiUrl}/companies/${companyId}/logo`, form);
     }
 
 }

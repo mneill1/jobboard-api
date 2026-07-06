@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../service/auth';
 
@@ -11,15 +11,27 @@ export class RegisterComponent {
   email = '';
   password = '';
   role = 'APPLICANT';
-  error: string | null = null;
+  companyName = '';
+  companyIndustry = '';
+  companySize = '';
+  companyWebsite = '';
+  error = signal<string | null>(null);
 
   constructor(private authService: AuthService, private router: Router) {}
 
   submit(): void {
-    this.error = null;
-    this.authService.register(this.email, this.password, this.role).subscribe({
+    this.error.set(null);
+    this.authService.register(
+      this.email,
+      this.password,
+      this.role,
+      this.companyName || undefined,
+      this.companyIndustry || undefined,
+      this.companySize || undefined,
+      this.companyWebsite || undefined
+    ).subscribe({
       next: () => this.router.navigate(['/login']),
-      error: (err) => this.error = err?.error?.message ?? 'Registration failed'
+      error: (err) => this.error.set(err?.error?.message ?? 'Registration failed')
     });
   }
 }

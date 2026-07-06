@@ -50,7 +50,19 @@
       "Bash(curl -s http://localhost:8080/actuator)",
       "Bash(curl -s http://localhost:8080/actuator/health)",
       "Bash(curl -s -o /dev/null -w \"code=%{http_code} time=%{time_total}\\\\n\" http://localhost:8080/actuator/health)",
-      "Bash(grep -nB2 -A30 \"ServiceDecorator\" /Users/malcolmneill/Desktop/InterviewTraining/api/frontend/node_modules/@angular/core/types/core.d.ts)"
+      "Bash(grep -nB2 -A30 \"ServiceDecorator\" /Users/malcolmneill/Desktop/InterviewTraining/api/frontend/node_modules/@angular/core/types/core.d.ts)",
+      "Bash(npm install *)",
+      "Bash(npm cache *)",
+      "Bash(mkdir -p /Users/malcolmneill/Desktop/InterviewTraining/api/frontend/src/app/listings-map)",
+      "Bash(cp /Users/malcolmneill/Desktop/InterviewTraining/api/MapTemplate/listings-map.component.ts /Users/malcolmneill/Desktop/InterviewTraining/api/MapTemplate/listings-map.component.html /Users/malcolmneill/Desktop/InterviewTraining/api/MapTemplate/listings-map.component.css /Users/malcolmneill/Desktop/InterviewTraining/api/frontend/src/app/listings-map/)",
+      "Bash(npx ng *)",
+      "Bash(chmod +x /Users/malcolmneill/Desktop/InterviewTraining/api/scripts/teardown-jobs.sh)",
+      "Bash(grep -E '\\\\.\\(java|ts|yml|yaml|properties\\)$')",
+      "Bash(find /Users/malcolmneill/Desktop/InterviewTraining -type d | head -60)",
+      "Read(//Users/malcolmneill/Desktop/InterviewTraining/**)",
+      "Bash(npx tsc *)",
+      "Bash(./mvnw -q compile)",
+      "Bash(./mvnw clean *)"
     ],
     "additionalDirectories": [
       "/private/tmp"

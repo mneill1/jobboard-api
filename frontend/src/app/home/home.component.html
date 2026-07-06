@@ -1,155 +1,292 @@
-<div style="max-width: 700px; margin: 40px auto; font-family: sans-serif; padding: 0 16px;">
+<div class="min-h-screen bg-surface">
 
-  <div style="display: flex; gap: 8px; margin-bottom: 16px;">
-    <input
-      [(ngModel)]="query"
-      (keydown)="onKeydown($event)"
-      name="query"
-      placeholder="Search jobs..."
-      style="flex: 1; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;"
-    />
-    <button
-      (click)="search()"
-      style="padding: 8px 16px; background: #1a1a1a; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;">
-      Search
-    </button>
-    <button
-      (click)="loadAll()"
-      style="padding: 8px 16px; background: white; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; font-size: 14px;">
-      All jobs
-    </button>
-    <button
-      *ngIf="authService.getRole() === 'COMPANY'"
-      (click)="toggleForm()"
-      style="padding: 8px 16px; background: #3b82d4; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;">
-      Post a Job
-    </button>
-  </div>
+  <!-- Hero search bar -->
+  <div class="bg-gradient-to-br from-slate-900 to-brand-900 py-12 px-4">
+    <div class="mx-auto max-w-2xl text-center">
+      <h1 class="text-3xl font-bold text-white mb-2">Find your next opportunity</h1>
+      <p class="text-slate-300 text-sm mb-6">Search thousands of jobs from top companies</p>
 
-  <div *ngIf="successMessage" style="color: #276749; font-size: 14px; margin-bottom: 16px; padding: 10px 14px; border: 1px solid #b7e4c7; border-radius: 6px; background: #f0fff4;">
-    {{ successMessage }}
-  </div>
-
-  <div *ngIf="showForm" style="background: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
-    <h2 style="font-size: 18px; font-weight: 500; margin: 0 0 16px;">Post a Job</h2>
-
-    <div *ngIf="formError" style="color: red; font-size: 14px; margin-bottom: 12px; padding: 8px 12px; border: 1px solid #f5c6cb; border-radius: 6px; background: #fff5f5;">
-      {{ formError }}
-    </div>
-
-    <div style="margin-bottom: 12px;">
-      <label style="display: block; font-size: 14px; margin-bottom: 4px; color: #1a1a1a;">Title</label>
-      <input
-        [(ngModel)]="newJob.title"
-        name="title"
-        style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box;"
-      />
-    </div>
-
-    <div style="margin-bottom: 12px;">
-      <label style="display: block; font-size: 14px; margin-bottom: 4px; color: #1a1a1a;">Description</label>
-      <textarea
-        [(ngModel)]="newJob.description"
-        name="description"
-        rows="4"
-        style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box; resize: vertical;"
-      ></textarea>
-    </div>
-
-    <div style="margin-bottom: 12px;">
-      <label style="display: block; font-size: 14px; margin-bottom: 4px; color: #1a1a1a;">Location</label>
-      <input
-        [(ngModel)]="newJob.location"
-        name="location"
-        style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box;"
-      />
-    </div>
-
-    <div style="display: flex; gap: 12px; margin-bottom: 12px;">
-      <div style="flex: 1;">
-        <label style="display: block; font-size: 14px; margin-bottom: 4px; color: #1a1a1a;">Salary Min</label>
-        <input
-          type="number"
-          [(ngModel)]="newJob.salaryMin"
-          name="salaryMin"
-          style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box;"
-        />
+      <div class="flex gap-2">
+        <div class="flex-1 relative">
+          <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" style="font-size:20px;">search</span>
+          <input
+            [(ngModel)]="draftQuery"
+            (keydown)="onKeydown($event)"
+            name="query"
+            placeholder="Job title, skill, or keyword…"
+            class="w-full pl-10 pr-4 py-3 rounded-xl border-0 bg-white text-slate-900 placeholder-slate-400
+                   text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 shadow-lg"
+          />
+        </div>
+        <button (click)="applyFilters()"
+                class="px-5 py-3 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-xl
+                       transition-colors text-sm cursor-pointer border-0 shadow-lg whitespace-nowrap">
+          Search
+        </button>
       </div>
-      <div style="flex: 1;">
-        <label style="display: block; font-size: 14px; margin-bottom: 4px; color: #1a1a1a;">Salary Max</label>
-        <input
-          type="number"
-          [(ngModel)]="newJob.salaryMax"
-          name="salaryMax"
-          style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box;"
-        />
+
+      <div class="mt-3 flex items-center justify-center gap-3">
+        <button (click)="toggleFilters()"
+                class="text-sm text-slate-300 hover:text-white transition-colors cursor-pointer bg-transparent border-0 underline underline-offset-2 flex items-center gap-1">
+          <span class="material-icons" style="font-size:16px;">tune</span>
+          {{ showFilters() ? 'Hide filters' : 'Filters' }}
+          <span *ngIf="activeFilterCount() > 0"
+                class="ml-1 inline-flex items-center justify-center text-xs font-semibold bg-brand-500 text-white rounded-full w-5 h-5">
+            {{ activeFilterCount() }}
+          </span>
+        </button>
+        <span class="text-slate-600">·</span>
+        <button
+          *ngIf="authService.getRole() === 'COMPANY'"
+          (click)="toggleForm()"
+          class="text-sm text-amber-300 hover:text-amber-200 transition-colors cursor-pointer bg-transparent border-0 underline underline-offset-2">
+          + Post a job
+        </button>
       </div>
-    </div>
 
-    <div style="display: flex; gap: 12px; margin-bottom: 12px;">
-      <div style="flex: 1;">
-        <label style="display: block; font-size: 14px; margin-bottom: 4px; color: #1a1a1a;">Company</label>
-        <select
-          [(ngModel)]="newJob.companyId"
-          name="companyId"
-          style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box; background: white;"
-        >
-          <option [value]="null" disabled>Select a company</option>
-          <option *ngFor="let c of companies" [value]="c.id">{{ c.name }}</option>
-        </select>
-      </div>
-      <div style="flex: 1;">
-        <label style="display: block; font-size: 14px; margin-bottom: 4px; color: #1a1a1a;">Status</label>
-        <select
-          [(ngModel)]="newJob.status"
-          name="status"
-          style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box; background: white;"
-        >
-          <option value="DRAFT">DRAFT</option>
-          <option value="ACTIVE">ACTIVE</option>
-          <option value="CLOSED">CLOSED</option>
-        </select>
-      </div>
-    </div>
-
-    <div style="display: flex; gap: 8px;">
-      <button
-        (click)="submitJob()"
-        style="padding: 8px 20px; background: #1a1a1a; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;">
-        Post Job
-      </button>
-      <button
-        (click)="toggleForm()"
-        style="padding: 8px 20px; background: white; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; font-size: 14px;">
-        Cancel
-      </button>
-    </div>
-  </div>
-
-  <div *ngIf="loading" style="color: #888; font-size: 14px;">
-    Loading...
-  </div>
-
-  <div *ngIf="searched && !loading && jobs.length === 0" style="color: #888; font-size: 14px;">
-    No jobs found.
-  </div>
-
-  <div *ngFor="let job of jobs"
-    style="border: 1px solid #eee; border-radius: 8px; padding: 16px; margin-bottom: 12px;">
-    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-      <div>
-        <div style="font-size: 16px; font-weight: 500;">{{ job.title }}</div>
-        <div style="font-size: 13px; color: #666; margin-top: 2px;">
-          {{ job.companyName }} · {{ job.location }}
+      <!-- Filter panel -->
+      <div *ngIf="showFilters()"
+           class="mt-4 bg-white/95 rounded-xl p-4 shadow-lg text-left grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">City</label>
+          <select [(ngModel)]="draftLocation" name="draftLocation"
+                  class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm
+                         focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition">
+            <option value="">Any city</option>
+            <option *ngFor="let city of cities" [value]="city">{{ city }}</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Min salary ($)</label>
+          <input type="number" [(ngModel)]="draftMinSalary" name="draftMinSalary" placeholder="e.g. 50000"
+                 class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm
+                        focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Posted within</label>
+          <select [(ngModel)]="draftPostedWithinDays" name="draftPostedWithinDays"
+                  class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm
+                         focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition">
+            <option [ngValue]="null">Any time</option>
+            <option [ngValue]="1">Last 24 hours</option>
+            <option [ngValue]="7">Last 7 days</option>
+            <option [ngValue]="30">Last 30 days</option>
+          </select>
+        </div>
+        <div class="sm:col-span-3 flex gap-2 justify-end pt-1">
+          <button (click)="clearFilters()"
+                  class="px-4 py-2 text-sm text-slate-600 hover:text-slate-900 bg-white hover:bg-slate-50 border border-slate-300 rounded-lg cursor-pointer transition-colors">
+            Clear all
+          </button>
+          <button (click)="applyFilters()"
+                  class="px-4 py-2 text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-lg cursor-pointer transition-colors border-0">
+            Apply filters
+          </button>
         </div>
       </div>
-      <span style="font-size: 11px; padding: 2px 8px; border-radius: 20px; background: #f0f0f0; color: #555;">
-        {{ job.status }}
-      </span>
-    </div>
-    <div style="font-size: 13px; color: #888; margin-top: 8px;">
-      ${{ job.salaryMin | number }} – ${{ job.salaryMax | number }}
     </div>
   </div>
 
+  <!-- Jobs-by-city map -->
+  <div class="mx-auto px-4 pt-8 transition-all duration-300"
+       [class.max-w-4xl]="!draftLocation"
+       [class.max-w-xl]="draftLocation">
+    <app-listings-map
+      [data]="mapData()"
+      [selectedCity]="draftLocation || null"
+      (citySelected)="onCitySelected($event)">
+    </app-listings-map>
+  </div>
+
+  <!-- Page body -->
+  <div class="mx-auto max-w-2xl px-4 py-8">
+
+    <!-- Success toast -->
+    <div *ngIf="successMessage()"
+         class="mb-6 flex items-center gap-2 text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
+      <span class="material-icons text-base">check_circle</span>
+      {{ successMessage() }}
+    </div>
+
+    <!-- Post-a-job form -->
+    <div *ngIf="showForm"
+         class="mb-8 bg-card border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+        <h2 class="font-semibold text-slate-900 flex items-center gap-2">
+          <span class="material-icons text-brand-600" style="font-size:18px;">add_circle</span>
+          Post a job
+        </h2>
+        <button (click)="toggleForm()"
+                class="text-slate-400 hover:text-slate-600 transition-colors cursor-pointer bg-transparent border-0">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <div class="px-6 py-5 space-y-4">
+        <div *ngIf="formError()"
+             class="flex items-start gap-2 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+          <span class="material-icons text-base mt-0.5">error_outline</span>
+          {{ formError() }}
+        </div>
+
+        <!-- Title -->
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1.5">Job title</label>
+          <input [(ngModel)]="newJob.title" name="title"
+                 class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm
+                        focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition" />
+        </div>
+
+        <!-- Description -->
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1.5">Description</label>
+          <textarea [(ngModel)]="newJob.description" name="description" rows="4"
+                    class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm
+                           focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition resize-y"></textarea>
+        </div>
+
+        <!-- Location -->
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1.5">Location</label>
+          <select [(ngModel)]="newJob.location" name="location"
+                  class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm
+                         focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition">
+            <option value="" disabled>Select a city…</option>
+            <option *ngFor="let city of cities" [value]="city">{{ city }}</option>
+          </select>
+        </div>
+
+        <!-- Salary -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1.5">Salary min ($)</label>
+            <input type="number" [(ngModel)]="newJob.salaryMin" name="salaryMin"
+                   class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm
+                          focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1.5">Salary max ($)</label>
+            <input type="number" [(ngModel)]="newJob.salaryMax" name="salaryMax"
+                   class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm
+                          focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition" />
+          </div>
+        </div>
+
+        <!-- Company & Status -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1.5">Company</label>
+            <select [(ngModel)]="newJob.companyId" name="companyId"
+                    class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm
+                           focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition">
+              <option [value]="null" disabled>Select…</option>
+              <option *ngFor="let c of companies()" [value]="c.id">{{ c.name }}</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1.5">Status</label>
+            <select [(ngModel)]="newJob.status" name="status"
+                    class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm
+                           focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition">
+              <option value="DRAFT">Draft</option>
+              <option value="ACTIVE">Active</option>
+              <option value="CLOSED">Closed</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex gap-2 pt-1">
+          <button (click)="submitJob()"
+                  class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-lg
+                         transition-colors text-sm cursor-pointer border-0">
+            Post job
+          </button>
+          <button (click)="toggleForm()"
+                  class="px-5 py-2.5 bg-white hover:bg-slate-50 text-slate-700 font-medium rounded-lg
+                         transition-colors text-sm cursor-pointer border border-slate-300">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- City filter chip -->
+    <div *ngIf="draftLocation" class="mb-4 flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2 text-sm">
+        <span class="material-icons text-brand-600" style="font-size:18px;">place</span>
+        <span class="text-slate-700">Showing jobs in</span>
+        <span class="font-semibold text-slate-900">{{ draftLocation }}</span>
+        <span class="text-slate-400">·</span>
+        <span class="text-slate-500">{{ jobs().length }} result{{ jobs().length === 1 ? '' : 's' }}</span>
+      </div>
+      <button (click)="clearCityFilter()"
+              class="flex items-center gap-1 text-sm text-slate-500 hover:text-slate-900 border border-slate-200 hover:border-slate-300
+                     px-3 py-1 rounded-lg transition-colors cursor-pointer bg-transparent">
+        <span class="material-icons" style="font-size:16px;">close</span>
+        Clear
+      </button>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading()" class="flex items-center justify-center gap-2 py-16 text-slate-400 text-sm">
+      <span class="material-icons animate-spin" style="font-size:20px;">refresh</span>
+      Loading jobs…
+    </div>
+
+    <!-- Empty state -->
+    <div *ngIf="searched() && !loading() && jobs().length === 0"
+         class="text-center py-20">
+      <span class="material-icons text-slate-300 text-5xl mb-3 block">search_off</span>
+      <p class="text-slate-500 font-medium">No jobs found</p>
+      <p class="text-slate-400 text-sm mt-1">Try a different search or clear filters</p>
+    </div>
+
+    <!-- Job cards -->
+    <div class="space-y-3">
+      <div *ngFor="let job of jobs()"
+           class="bg-card border border-slate-200 rounded-xl p-5 hover:shadow-md hover:border-brand-200 transition-all">
+        <div class="flex gap-4 items-start">
+
+          <!-- Company logo / icon -->
+          <div class="flex-shrink-0 w-12 h-12 rounded-xl overflow-hidden bg-slate-100 flex items-center justify-center border border-slate-200">
+            <img *ngIf="job.companyLogoUrl"
+                 [src]="'http://localhost:8080' + job.companyLogoUrl"
+                 [alt]="job.companyName"
+                 class="w-full h-full object-contain" />
+            <span *ngIf="!job.companyLogoUrl"
+                  class="material-icons text-slate-400" style="font-size:24px;">business</span>
+          </div>
+
+          <!-- Content -->
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <h3 class="font-semibold text-slate-900 text-base leading-snug">{{ job.title }}</h3>
+                <p class="text-sm text-slate-500 mt-0.5">
+                  {{ job.companyName }}
+                  <span *ngIf="job.location" class="before:content-['·'] before:mx-1">{{ job.location }}</span>
+                </p>
+              </div>
+              <!-- Status badge -->
+              <span class="flex-shrink-0 text-xs font-semibold px-2.5 py-0.5 rounded-full
+                    {{ job.status === 'ACTIVE'  ? 'bg-emerald-100 text-emerald-700' :
+                       job.status === 'CLOSED'  ? 'bg-red-100 text-red-600' :
+                                                   'bg-amber-100 text-amber-700' }}">
+                {{ job.status }}
+              </span>
+            </div>
+
+            <!-- Salary -->
+            <div *ngIf="job.salaryMin || job.salaryMax"
+                 class="mt-3 flex items-center gap-1 text-sm text-slate-600">
+              <span class="material-icons text-slate-400" style="font-size:16px;">attach_money</span>
+              <span>{{ job.salaryMin | number }} – {{ job.salaryMax | number }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
 </div>
