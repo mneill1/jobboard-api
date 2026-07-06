@@ -1,7 +1,9 @@
 package com.jobboard.api.service;
 
+import com.jobboard.api.dto.JobFilterRequest;
 import com.jobboard.api.dto.JobRequest;
 import com.jobboard.api.dto.JobResponse;
+import org.springframework.data.jpa.domain.Specification;
 import com.jobboard.api.entity.Company;
 import com.jobboard.api.entity.Job;
 import com.jobboard.api.entity.JobDocument;
@@ -113,33 +115,36 @@ class JobServiceTest {
 
     @Test
     void list_noFilters_returnsAllJobs() {
-        when(jobRepo.findAll()).thenReturn(List.of(job));
+        when(jobRepo.findAll(any(Specification.class))).thenReturn(List.of(job));
 
-        List<JobResponse> results = jobService.list(null, null);
+        List<JobResponse> results = jobService.list(new JobFilterRequest());
 
         assertThat(results).hasSize(1);
         assertThat(results.get(0).getTitle()).isEqualTo("Engineer");
     }
 
     @Test
-    void list_filterByStatus_delegatesToFindByStatus() {
-        when(jobRepo.findByStatus(JobStatus.ACTIVE)).thenReturn(List.of(job));
+    void list_filterByStatus_appliesSpecification() {
+        when(jobRepo.findAll(any(Specification.class))).thenReturn(List.of(job));
 
-        List<JobResponse> results = jobService.list(JobStatus.ACTIVE, null);
+        JobFilterRequest filter = new JobFilterRequest();
+        filter.setStatus(JobStatus.ACTIVE);
+        List<JobResponse> results = jobService.list(filter);
 
         assertThat(results).hasSize(1);
-        verify(jobRepo).findByStatus(JobStatus.ACTIVE);
-        verify(jobRepo, never()).findAll();
+        verify(jobRepo).findAll(any(Specification.class));
     }
 
     @Test
-    void list_filterByLocation_delegatesToFindByLocation() {
-        when(jobRepo.findByLocationContainingIgnoreCase("London")).thenReturn(List.of(job));
+    void list_filterByLocation_appliesSpecification() {
+        when(jobRepo.findAll(any(Specification.class))).thenReturn(List.of(job));
 
-        List<JobResponse> results = jobService.list(null, "London");
+        JobFilterRequest filter = new JobFilterRequest();
+        filter.setLocation("London");
+        List<JobResponse> results = jobService.list(filter);
 
         assertThat(results).hasSize(1);
-        verify(jobRepo).findByLocationContainingIgnoreCase("London");
+        verify(jobRepo).findAll(any(Specification.class));
     }
 
     // --- delete ---

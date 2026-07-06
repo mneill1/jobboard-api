@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jobboard.api.TestSecurityConfig;
 import com.jobboard.api.config.JwtUtil;
 import com.jobboard.api.config.UserDetailsServiceImpl;
+import com.jobboard.api.dto.JobFilterRequest;
 import com.jobboard.api.dto.JobRequest;
 import com.jobboard.api.dto.JobResponse;
 import com.jobboard.api.entity.JobStatus;
+import org.mockito.ArgumentCaptor;
 import com.jobboard.api.exception.ResourceNotFoundException;
 import com.jobboard.api.repository.UserRepository;
 import com.jobboard.api.service.ApplicationService;
@@ -56,7 +58,7 @@ class JobControllerTest {
 
     @Test
     void listJobs_noFilters_returnsOk() throws Exception {
-        when(jobService.list(null, null)).thenReturn(List.of(jobResponse));
+        when(jobService.list(any(JobFilterRequest.class))).thenReturn(List.of(jobResponse));
 
         mockMvc.perform(get("/api/jobs"))
                 .andExpect(status().isOk())
@@ -65,12 +67,14 @@ class JobControllerTest {
 
     @Test
     void listJobs_filterByStatus_passesStatusToService() throws Exception {
-        when(jobService.list(JobStatus.ACTIVE, null)).thenReturn(List.of());
+        when(jobService.list(any(JobFilterRequest.class))).thenReturn(List.of());
 
         mockMvc.perform(get("/api/jobs").param("status", "ACTIVE"))
                 .andExpect(status().isOk());
 
-        verify(jobService).list(JobStatus.ACTIVE, null);
+        ArgumentCaptor<JobFilterRequest> captor = ArgumentCaptor.forClass(JobFilterRequest.class);
+        verify(jobService).list(captor.capture());
+        org.assertj.core.api.Assertions.assertThat(captor.getValue().getStatus()).isEqualTo(JobStatus.ACTIVE);
     }
 
     // --- GET /api/jobs/{id} ---
